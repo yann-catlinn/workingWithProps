@@ -1,103 +1,57 @@
-
-Agregando vue por NPM
-Introducción
-Iniciando
-Editando package.json
-Webpack config
-Agregando .babelrc
-Vue cli 3
-#Agregando vue por NPM
-#Introducción
-Si estamos trabajando en proyecto , ya mas estructurado donde estemos ocupando , webpack , por ejemplo podríamos incluir Vue , dentro del proyecto para poder trabajar con el.
-
-Sabiendo esto vamos a instalar un proyecto con npm desde 0 , para que veas como agregar vue de manera correcta y sin complicaciones 💪 .
-
-Para comenzar crearemos una carpeta en el directorio donde deseemos trabajar.
-
-#Iniciando
-Agregamos el siguiente comando npm init -y
-
-Si todo resulta bien , el anterior comando debería haber creado un archivo llamado package.json
-
-#Editando package.json
-Lo que debemos hacer es editar la sección de scripts(serve) y devDependencies
-
-  {
-    "name": "vueProyect",
-    "version": "1.0.0",
-    "description": "",
-    "main": "index.js",
-    "scripts": {
-      "serve": "webpack-dev-server --mode development"
-    },
-    "keywords": [],
-    "author": "",
-    "license": "ISC",
-    "devDependencies": {
-      "@babel/core": "^7.11.6",
-      "@babel/preset-env": "^7.11.5",
-      "babel-loader": "^8.1.0",
-      "css-loader": "^3.6.0",
-      "html-webpack-plugin": "^4.4.1",
-      "vue": "^2.6.12",
-      "vue-loader": "^15.9.3",
-      "vue-style-loader": "^4.1.2",
-      "vue-template-compiler": "^2.6.12",
-      "webpack": "^4.44.1",
-      "webpack-cli": "^3.3.12",
-      "webpack-dev-server": "^3.11.0"
-      }
- }
-
-#Instalando las dependencias agregadas
-le damos a instalar con
-
-npm install
-#Webpack config
-luego debemos crear el archivo webpack.config.js quedando de este modo
-
-
-const VueLoaderPlugin = require('vue-loader/lib/plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-
-module.exports = {
-  entry: './src/index.js',
-  module: {
-    rules: [
-      { test: /\.js$/, exclude: /node_modules/, loader: "babel-loader" },
-      { test:/\.vue$/, use: 'vue-loader' },
-      { test:/\.css$/, use: ['vue-style-loader' , 'css-loader']}
-    ]
-  },
-  plugins: [
-    new HtmlWebpackPlugin({
-    template: './src/index.html'
-    }),
-      new VueLoaderPlugin( ),
-    ]
-};
-#Agregando .babelrc
-agregar el archivo sin extensiones .babelrc en la raiz de nuestro proyecto.
-
-{
-  "presets": ["@babel/preset-env"]
-}
-Luego creamos un archivo en la carpeta src llamada *App.vue
-
 <template>
+  
   <div id="app">
-    {{ message }}
+      <h1>Working with Props - To do List</h1>
+      <form>
+          <label for="">Tasks</label>
+          <input type="text" v-model="task" @keyup.enter="add_task" placeholder="Add a new Task">
+          <input v-on:click.prevent=add_task type="submit" value="Add">
+      </form>
+      <ul id="task_div">
+          <li v-for="(task, index) in tasks"
+          :task="task"
+          :index="index"
+          :key="task.id"
+          >
+              {{task}}
+              <event-delete :id="index" @deleted="delete_task"></event-delete>
+          </li>
+      </ul>
   </div>
 </template>
 
 <script>
+   import DeleteComponent from "./components/Delete.vue";
   export default {
-    data() {
+      name: 'app-component',
+      // props:{},
+    data: function() {
       return {
-        message: 'Hola en vue',
+                 tasks:[],
+          task:"",
       };
+    },
+    // computed:{},
+     components: {
+          'event-delete':DeleteComponent,
+      },
+    methods:{
+         add_task: function (task, index) { 
+            if(this.task != ""){
+            this.tasks.push(this.task)
+            this.task="";
+            }
+        },
+        delete_task(e){
+          console.log(e,"event")
+          let id= e.id
+          let index=this.tasks.findIndex((task)=>task.id===id);
+          console.log(id)
+          this.tasks.splice(id,1)
     }
+    }  
   }
+  
 </script>
 
 <style scoped>
@@ -105,6 +59,18 @@ Luego creamos un archivo en la carpeta src llamada *App.vue
     font-size: 25px;
     font-family: "Calibri", sans-serif;
     color: darkblue;
-    background: lightblue;
+    text-align: center;
   }
+  #task_div{
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+  }
+  #task_div li{
+        display: flex;
+   
+      justify-content: center;
+  }
+
+ 
 </style>
